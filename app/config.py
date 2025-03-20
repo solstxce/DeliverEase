@@ -1,0 +1,6 @@
+import os
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key'
+    SUPABASE_URL = "https://egqungjcpwkoowdzgfqz.supabase.co"
+    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVncXVuZ2pjcHdrb293ZHpnZnF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMxNjYzMDAsImV4cCI6MjA0ODc0MjMwMH0.dw-iiwMkjqq4b8FLbKOOuUhKL960nsORCGl9H7Go6zQ" 

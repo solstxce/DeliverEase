@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Recent Orders -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Recent Orders</h2>
+        {% if recent_orders %}
+            <div class="space-y-4">
+                {% for order in recent_orders %}
+                    <div class="border-b pb-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold">Order #{{ order.id[:8] }}</p>
+                                <p class="text-sm text-gray-600">{{ order.item_description }}</p>
+                                <p class="text-sm text-gray-500">Status: <span class="font-medium text-blue-600">{{ order.status }}</span></p>
+                            </div>
+                            <p class="text-sm text-gray-500">{{ order.created_at.strftime('%Y-%m-%d') }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('user.orders') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">View all orders →</a>
+        {% else %}
+            <p class="text-gray-600">No recent orders found.</p>
+            <a href="{{ url_for('user.create_order') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">Create your first order →</a>
+        {% endif %}
+    </div>
+
+    <!-- Active Support Tickets -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Active Support Tickets</h2>
+        {% if active_tickets %}
+            <div class="space-y-4">
+                {% for ticket in active_tickets %}
+                    <div class="border-b pb-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold">{{ ticket.subject }}</p>
+                                <p class="text-sm text-gray-500">Status: <span class="font-medium text-blue-600">{{ ticket.status }}</span></p>
+                            </div>
+                            <p class="text-sm text-gray-500">{{ ticket.created_at.strftime('%Y-%m-%d') }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('user.tickets') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">View all tickets →</a>
+        {% else %}
+            <p class="text-gray-600">No active support tickets.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

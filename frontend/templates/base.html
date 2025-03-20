@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DeliverEase{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body class="{% if 'auth.' in request.endpoint %}bg-gradient-to-br from-blue-500 to-purple-600{% else %}bg-gray-100{% endif %}">
+    {% if 'auth.' not in request.endpoint %}
+        <!-- Regular app layout -->
+        {% if current_user.is_authenticated %}
+            {% include 'components/sidebar.html' %}
+        {% endif %}
+
+        <div class="min-h-screen flex">
+            <!-- Main Content -->
+            <main class="flex-1 p-6 pt-20 transition-all duration-200 ease-in-out lg:ml-64">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div data-flash-message="{{ message }}" data-flash-type="{{ category }}" class="hidden"></div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    {% else %}
+        <!-- Auth pages layout -->
+        {% block auth_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+
+    <!-- Add JavaScript for sidebar toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnToggle = sidebarToggle.contains(event.target);
+                
+                if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth < 1024) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+    </script>
+
+    <!-- Common JavaScript -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

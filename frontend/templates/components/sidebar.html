@@ -1,0 +1,336 @@
+<div class="relative">
+    <!-- Top Bar -->
+    <div class="fixed top-0 right-0 left-64 h-16 bg-white shadow-sm z-20 transition-all duration-200">
+        <div class="h-full px-6 flex items-center justify-between ml-8">
+            <!-- Page Title and Breadcrumbs -->
+            <div class="flex items-center">
+                <h1 class="text-xl font-semibold text-gray-900">
+                    {% if request.endpoint %}
+                        {% if 'dashboard' in request.endpoint %}
+                            <i class="fas fa-home mr-2 text-blue-600"></i>Dashboard
+                        {% elif 'orders' in request.endpoint %}
+                            <i class="fas fa-box mr-2 text-blue-600"></i>Orders
+                        {% elif 'tickets' in request.endpoint %}
+                            <i class="fas fa-ticket-alt mr-2 text-blue-600"></i>Support Tickets
+                        {% elif 'users' in request.endpoint %}
+                            <i class="fas fa-users mr-2 text-blue-600"></i>Users
+                        {% else %}
+                            <i class="fas fa-circle mr-2 text-blue-600"></i>{{ request.endpoint.split('.')[-1].replace('_', ' ')|title }}
+                        {% endif %}
+                    {% endif %}
+                </h1>
+                <!-- Breadcrumbs -->
+                <nav class="ml-4 text-sm">
+                    <ol class="flex items-center space-x-2">
+                        <li>
+                            <a href="{{ url_for(current_user.user_type + '.dashboard') }}" 
+                               class="text-gray-500 hover:text-gray-700">
+                                Home
+                            </a>
+                        </li>
+                        {% if request.endpoint and 'dashboard' not in request.endpoint %}
+                            <li class="text-gray-500">/</li>
+                            <li class="text-gray-900">{{ request.endpoint.split('.')[-1].title() }}</li>
+                        {% endif %}
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Right side actions -->
+            <div class="flex items-center space-x-4">
+                <!-- User info -->
+                <div class="flex items-center space-x-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium text-gray-900">{{ current_user.full_name }}</p>
+                        <p class="text-xs text-gray-500">{{ current_user.user_type|title }}</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-sm font-medium text-gray-600">{{ current_user.full_name[0] }}</span>
+                    </div>
+                </div>
+
+                <!-- Logout button -->
+                <a href="{{ url_for('auth.logout') }}" 
+                   class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    <span class="hidden sm:inline">Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-gray-800 text-white transform transition-transform duration-200 ease-in-out z-40">
+        <div class="flex flex-col h-full">
+            <!-- Sidebar Header with Toggle Button -->
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <span class="text-xl font-bold">
+                    <span class="text-blue-400">Deliver</span><span class="text-blue-300">Ease</span>
+                </span>
+                <!-- Collapse button -->
+                <button id="sidebarCollapse" class="p-2 rounded-md hover:bg-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Page Title and Breadcrumbs (Moved from header) -->
+            <div class="p-4 bg-gray-700">
+                <h1 class="text-xl font-semibold text-white">
+                    {% if request.endpoint %}
+                        {% if 'dashboard' in request.endpoint %}
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        {% elif 'orders' in request.endpoint %}
+                            <i class="fas fa-box mr-2"></i>Orders
+                        {% elif 'tickets' in request.endpoint %}
+                            <i class="fas fa-ticket-alt mr-2"></i>Support Tickets
+                        {% elif 'users' in request.endpoint %}
+                            <i class="fas fa-users mr-2"></i>Users
+                        {% else %}
+                            <i class="fas fa-circle mr-2"></i>{{ request.endpoint.split('.')[-1].replace('_', ' ')|title }}
+                        {% endif %}
+                    {% endif %}
+                </h1>
+                <!-- Breadcrumbs -->
+                <nav class="mt-2 text-sm">
+                    <ol class="flex items-center space-x-2">
+                        <li>
+                            <a href="{{ url_for(current_user.user_type + '.dashboard') }}" 
+                               class="text-gray-400 hover:text-white">
+                                Home
+                            </a>
+                        </li>
+                        {% if request.endpoint and 'dashboard' not in request.endpoint %}
+                            <li class="text-gray-400">/</li>
+                            <li class="text-gray-300">{{ request.endpoint.split('.')[-1].title() }}</li>
+                        {% endif %}
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div class="flex-1 overflow-y-auto p-4">
+                {% if current_user.user_type == 'user' %}
+                    <nav class="space-y-4">
+                        <a href="{{ url_for('user.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 {% if request.endpoint == 'user.dashboard' %}bg-gray-700{% endif %}">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('user.create_order') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-plus mr-2"></i>Create Order
+                        </a>
+                        <a href="{{ url_for('user.orders') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-box mr-2"></i>My Orders
+                        </a>
+                        <a href="{{ url_for('user.tickets') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-ticket-alt mr-2"></i>Support Tickets
+                        </a>
+                    </nav>
+                {% elif current_user.user_type == 'driver' %}
+                    <nav class="space-y-4">
+                        <a href="{{ url_for('driver.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 {% if request.endpoint == 'driver.dashboard' %}bg-gray-700{% endif %}">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('driver.available_orders') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-list mr-2"></i>Available Orders
+                        </a>
+                        <a href="{{ url_for('driver.my_deliveries') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-truck mr-2"></i>My Deliveries
+                        </a>
+                        <a href="{{ url_for('driver.tickets') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-ticket-alt mr-2"></i>Support Tickets
+                        </a>
+                    </nav>
+                {% elif current_user.user_type == 'admin' %}
+                    <nav class="space-y-4">
+                        <a href="{{ url_for('admin.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 {% if request.endpoint == 'admin.dashboard' %}bg-gray-700{% endif %}">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-users mr-2"></i>Users
+                        </a>
+                        <a href="{{ url_for('admin.orders') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-box mr-2"></i>Orders
+                        </a>
+                        <a href="{{ url_for('admin.tickets') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
+                            <i class="fas fa-ticket-alt mr-2"></i>Support Tickets
+                        </a>
+                    </nav>
+                {% endif %}
+            </div>
+
+            <!-- Profile Section (at bottom) -->
+            <div class="mt-auto border-t border-gray-700">
+                <div class="p-4">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
+                                <span class="text-lg font-bold">{{ current_user.full_name[0] }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate">
+                                {{ current_user.full_name }}
+                            </p>
+                            <p class="text-xs text-gray-400 truncate">
+                                {{ current_user.email }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <button onclick="openProfileModal()" 
+                                class="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-user-edit mr-2"></i> Edit Profile
+                        </button>
+                        <a href="{{ url_for('auth.logout') }}" 
+                           class="block w-full text-left px-3 py-2 text-sm text-red-400 rounded-md hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expand Button (visible when sidebar is collapsed) -->
+    <div id="expandButton" class="fixed top-4 left-4 z-50 hidden">
+        <button class="p-2 rounded-md bg-gray-800 text-white hover:bg-gray-700 shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Edit Profile</h3>
+                <form id="profileForm" method="POST" action="{{ url_for('admin.update_profile') }}">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" 
+                                   value="{{ current_user.full_name }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" id="phone_number" name="phone_number" 
+                                   value="{{ current_user.phone_number }}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="current_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                            <input type="password" id="current_password" name="current_password"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="new_password" class="block text-sm font-medium text-gray-700">New Password (optional)</label>
+                            <input type="password" id="new_password" name="new_password"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex justify-end space-x-3">
+                        <button type="button" onclick="closeProfileModal()"
+                                class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('main');
+    const topBar = document.querySelector('.fixed.top-0.right-0');
+    const collapseButton = document.getElementById('sidebarCollapse');
+    const expandButton = document.getElementById('expandButton');
+    const overlay = document.getElementById('sidebarOverlay');
+    let isSidebarCollapsed = false;
+
+    function toggleSidebar() {
+        isSidebarCollapsed = !isSidebarCollapsed;
+        
+        if (isSidebarCollapsed) {
+            // Collapse sidebar
+            sidebar.style.transform = 'translateX(-256px)';
+            mainContent.style.marginLeft = '0';
+            topBar.style.left = '0';  // Adjust top bar
+            expandButton.classList.remove('hidden');
+        } else {
+            // Expand sidebar
+            sidebar.style.transform = 'translateX(0)';
+            mainContent.style.marginLeft = '16rem';
+            topBar.style.left = '16rem';  // Adjust top bar
+            expandButton.classList.add('hidden');
+        }
+    }
+
+    // Collapse button click handler
+    collapseButton.addEventListener('click', toggleSidebar);
+
+    // Expand button click handler
+    expandButton.addEventListener('click', toggleSidebar);
+
+    // Handle initial state on page load
+    if (window.innerWidth >= 1024) { // lg breakpoint
+        mainContent.style.marginLeft = '16rem';
+        topBar.style.left = '16rem';
+        sidebar.style.transform = 'translateX(0)';
+        expandButton.classList.add('hidden');
+    } else {
+        mainContent.style.marginLeft = '0';
+        topBar.style.left = '0';
+        sidebar.style.transform = 'translateX(-256px)';
+        expandButton.classList.remove('hidden');
+        isSidebarCollapsed = true;
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024) {
+            if (isSidebarCollapsed) {
+                toggleSidebar();
+            }
+        } else {
+            if (!isSidebarCollapsed) {
+                toggleSidebar();
+            }
+        }
+    });
+});
+
+function openProfileModal() {
+    const modal = document.getElementById('profileModal');
+    modal.classList.remove('hidden');
+}
+
+function closeProfileModal() {
+    const modal = document.getElementById('profileModal');
+    modal.classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('profileModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProfileModal();
+    }
+});
+</script> 

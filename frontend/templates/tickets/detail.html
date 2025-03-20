@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket Details - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Ticket Header -->
+        <div class="p-6 border-b">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl font-bold">{{ ticket.subject }}</h1>
+                    <p class="text-gray-600 mt-1">Opened by {{ ticket.user.full_name }} on {{ ticket.created_at.strftime('%Y-%m-%d') }}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm 
+                    {% if ticket.status == 'open' %}bg-green-100 text-green-800
+                    {% elif ticket.status == 'closed' %}bg-gray-100 text-gray-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ ticket.status|title }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="p-6 space-y-6">
+            {% for message in messages %}
+                <div class="flex {% if message.sender_id == current_user.id %}justify-end{% endif %}">
+                    <div class="max-w-lg {% if message.sender_id == current_user.id %}bg-blue-50{% else %}bg-gray-50{% endif %} rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <p class="text-sm font-medium {% if message.sender_id == current_user.id %}text-blue-600{% else %}text-gray-900{% endif %}">
+                                {{ message.sender.full_name }}
+                            </p>
+                            <span class="text-xs text-gray-500 ml-4">{{ message.created_at.strftime('%H:%M') }}</span>
+                        </div>
+                        <p class="mt-1 text-gray-800">{{ message.message }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Reply Form -->
+        {% if ticket.status != 'closed' %}
+            <div class="p-6 bg-gray-50 border-t">
+                <form method="POST" action="{{ url_for('ticket.add_message', ticket_id=ticket.id) }}" class="space-y-4">
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700">Your Reply</label>
+                        <textarea id="message" name="message" rows="4" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button type="submit"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Send Reply
+                        </button>
+                        {% if current_user.id == ticket.user_id or current_user.user_type == 'admin' %}
+                            <form method="POST" action="{{ url_for('ticket.close_ticket', ticket_id=ticket.id) }}" class="inline">
+                                <button type="submit"
+                                    class="text-gray-600 hover:text-gray-800 underline">
+                                    Close Ticket
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

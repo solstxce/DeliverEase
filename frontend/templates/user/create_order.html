@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Create Order - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h1 class="text-2xl font-bold mb-6">Create New Order</h1>
+        
+        <form method="POST" action="{{ url_for('user.create_order') }}" class="space-y-6">
+            <div>
+                <label for="pickup_location" class="block text-sm font-medium text-gray-700">Pickup Location</label>
+                <input type="text" id="pickup_location" name="pickup_location" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="delivery_location" class="block text-sm font-medium text-gray-700">Delivery Location</label>
+                <input type="text" id="delivery_location" name="delivery_location" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="item_description" class="block text-sm font-medium text-gray-700">Item Description</label>
+                <textarea id="item_description" name="item_description" rows="3" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="weight" class="block text-sm font-medium text-gray-700">Weight (kg)</label>
+                    <input type="number" step="0.1" id="weight" name="weight" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700">Price ($)</label>
+                    <input type="number" step="0.01" id="price" name="price" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{{ url_for('user.orders') }}" 
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Create Order
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

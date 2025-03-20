@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Orders Management - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Orders Management</h1>
+            <div class="flex space-x-4">
+                <select id="status-filter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="in_transit">In Transit</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6">
+        <!-- Orders Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in orders %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ order.id[:8] }}</div>
+                                <div class="text-sm text-gray-500">{{ order.item_description or 'No description' }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if order.user %}
+                                    <div class="text-sm text-gray-900">{{ order.user.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ order.user.email }}</div>
+                                {% else %}
+                                    <div class="text-sm text-gray-500">User not found</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if order.driver %}
+                                    <div class="text-sm text-gray-900">{{ order.driver.full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ order.driver.email }}</div>
+                                {% else %}
+                                    <span class="text-sm text-gray-500">Not assigned</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'in_transit' %}bg-blue-100 text-blue-800
+                                    {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if order.created_at %}
+                                    {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                    No date
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ url_for('admin.view_order', order_id=order.id) }}" 
+                                   class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                {% if order.status == 'pending' %}
+                                    <form method="POST" action="{{ url_for('admin.cancel_order', order_id=order.id) }}" class="inline">
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Cancel</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                No orders found
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('status-filter').addEventListener('change', function() {
+    const status = this.value;
+    window.location.href = "{{ url_for('admin.orders') }}" + (status ? "?status=" + status : "");
+});
+
+// Set the current filter value
+const urlParams = new URLSearchParams(window.location.search);
+const currentStatus = urlParams.get('status');
+if (currentStatus) {
+    document.getElementById('status-filter').value = currentStatus;
+}
+</script>
+{% endblock %} 

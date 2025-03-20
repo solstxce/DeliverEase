@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Quick Stats -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Users</h2>
+        <div class="text-3xl font-bold text-blue-600">{{ stats.total_users }}</div>
+        <div class="mt-2 text-sm text-gray-600">
+            Total registered users
+        </div>
+        <a href="{{ url_for('admin.users') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">Manage Users →</a>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Orders</h2>
+        <div class="text-3xl font-bold text-blue-600">{{ stats.total_orders }}</div>
+        <div class="mt-2 text-sm text-gray-600">
+            Total orders
+        </div>
+        <a href="{{ url_for('admin.orders') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">View Orders →</a>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Support Tickets</h2>
+        <div class="text-3xl font-bold text-blue-600">{{ stats.open_tickets }}</div>
+        <div class="mt-2 text-sm text-gray-600">
+            Open tickets
+        </div>
+        <a href="{{ url_for('admin.tickets') }}" class="mt-4 inline-block text-blue-600 hover:text-blue-800">View Tickets →</a>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="mt-8 bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-bold">Recent Activity</h2>
+    </div>
+    <div class="p-6">
+        <div class="space-y-6">
+            {% for activity in recent_activity %}
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-semibold">{{ activity.description }}</p>
+                        <p class="text-sm text-gray-600">{{ activity.details }}</p>
+                    </div>
+                    <p class="text-sm text-gray-500">{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            {% else %}
+                <p class="text-gray-500">No recent activity.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

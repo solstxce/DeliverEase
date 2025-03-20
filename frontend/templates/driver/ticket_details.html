@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket Details - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{{ url_for('driver.tickets') }}" 
+           class="inline-flex items-center text-sm text-blue-600 hover:text-blue-500">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Tickets
+        </a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-50 text-red-700 border border-red-100{% else %}bg-green-50 text-green-700 border border-green-100{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Ticket Details -->
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+        <div class="p-6">
+            <!-- Ticket Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">{{ ticket.subject }}</h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                           {% if ticket.status == 'open' %}bg-green-100 text-green-800
+                           {% elif ticket.status == 'closed' %}bg-gray-100 text-gray-800
+                           {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ ticket.status|title }}
+                </span>
+            </div>
+
+            <!-- Ticket Info -->
+            <div class="mb-6 text-sm text-gray-500 space-y-2">
+                <div>
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Created on {{ ticket.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </div>
+                {% if ticket.order_id %}
+                <div>
+                    <i class="fas fa-box mr-2"></i>
+                    Related Order: 
+                    <a href="{{ url_for('driver.view_delivery', order_id=ticket.order_id) }}" 
+                       class="text-blue-600 hover:text-blue-500">
+                        View Order
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Ticket Description -->
+            <div class="prose max-w-none">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Description</h3>
+                <p class="text-gray-700 whitespace-pre-line">{{ ticket.description }}</p>
+            </div>
+
+            <!-- Ticket Updates -->
+            {% if ticket.updates %}
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Updates</h3>
+                <div class="space-y-4">
+                    {% for update in ticket.updates %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-700 whitespace-pre-line">{{ update.message }}</p>
+                                <div class="mt-2 text-xs text-gray-500">
+                                    {{ update.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Add Update Form -->
+            {% if ticket.status != 'closed' %}
+            <form method="POST" action="{{ url_for('driver.update_ticket', ticket_id=ticket.id) }}" 
+                  class="mt-8 space-y-4">
+                <div>
+                    <label for="message" class="block text-sm font-medium text-gray-700">
+                        Add Update
+                    </label>
+                    <div class="mt-1">
+                        <textarea id="message" name="message" rows="4" required
+                            class="block w-full rounded-md border-gray-300 shadow-sm 
+                                   focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Enter your update message..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    {% if ticket.status == 'open' %}
+                    <button type="submit" name="action" value="close"
+                        class="inline-flex items-center px-4 py-2 border border-transparent 
+                               text-sm font-medium rounded-md text-white bg-red-600 
+                               hover:bg-red-700 focus:outline-none focus:ring-2 
+                               focus:ring-offset-2 focus:ring-red-500">
+                        Close Ticket
+                    </button>
+                    {% endif %}
+                    <button type="submit" name="action" value="update"
+                        class="inline-flex items-center px-4 py-2 border border-transparent 
+                               text-sm font-medium rounded-md text-white bg-blue-600 
+                               hover:bg-blue-700 focus:outline-none focus:ring-2 
+                               focus:ring-offset-2 focus:ring-blue-500">
+                        Add Update
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

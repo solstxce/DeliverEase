@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket Details - DeliverEase{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Ticket Details</h1>
+            <a href="{{ url_for('user.tickets') }}" class="text-blue-600 hover:text-blue-700">← Back to Tickets</a>
+        </div>
+    </div>
+
+    <div class="p-6">
+        <div class="space-y-6">
+            <!-- Ticket Information -->
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Ticket Information</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-sm text-gray-600">Ticket ID</div>
+                    <div class="text-sm">{{ ticket.id }}</div>
+                    
+                    <div class="text-sm text-gray-600">Status</div>
+                    <div class="text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if ticket.status == 'open' %}bg-green-100 text-green-800
+                            {% elif ticket.status == 'closed' %}bg-gray-100 text-gray-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ ticket.status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600">Created At</div>
+                    <div class="text-sm">
+                        {% if ticket.created_at %}
+                            {% if ticket.created_at is string %}
+                                {{ ticket.created_at.split('T')[0] }}
+                            {% else %}
+                                {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}
+                            {% endif %}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Content -->
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Subject</h2>
+                <p class="text-gray-900">{{ ticket.subject }}</p>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Message</h2>
+                <p class="text-gray-700 whitespace-pre-wrap">
+                    {% if ticket.messages %}
+                        {{ ticket.messages[0].message }}
+                    {% else %}
+                        No message content available
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Ticket Messages -->
+            {% if ticket.messages %}
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Conversation</h2>
+                <div class="space-y-4">
+                    {% for message in ticket.messages %}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ message.sender.full_name }}
+                                <span class="text-gray-500">({{ message.sender.user_type|title }})</span>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ message.created_at.strftime('%Y-%m-%d %H:%M') if message.created_at else 'N/A' }}
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-700">{{ message.message }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reply Form -->
+            {% if ticket.status != 'closed' %}
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Add Reply</h2>
+                <form id="replyForm" class="space-y-4">
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                        <textarea id="message" name="message" rows="4" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Send Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+            document.getElementById('replyForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData();
+                formData.append('message', document.getElementById('message').value);
+                
+                try {
+                    const response = await fetch(`{{ url_for('user.add_ticket_message', ticket_id=ticket.id) }}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Failed to send message');
+                    }
+                    
+                    // Clear form
+                    document.getElementById('message').value = '';
+                    
+                    // Show success toast
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Message Sent',
+                        text: 'Your reply has been added successfully',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+                    
+                    // Refresh page
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Show error toast
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to send message. Please try again.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            });
+            </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
