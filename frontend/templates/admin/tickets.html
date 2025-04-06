@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Support Tickets Management - DeliverEase{% endblock %}
+{% block title %}Support Tickets Management - ShipEasy{% endblock %}
 
 {% block content %}
 <div class="bg-white rounded-lg shadow">
@@ -51,13 +51,21 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ ticket.created_at.strftime('%Y-%m-%d') }}
+                            {% if ticket.created_at %}
+                                {{ ticket.created_at.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ ticket.updated_at.strftime('%Y-%m-%d') }}
+                            {% if ticket.updated_at %}
+                                {{ ticket.updated_at.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                {{ ticket.created_at.strftime('%Y-%m-%d') if ticket.created_at else 'N/A' }}
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 text-sm font-medium space-x-3">
-                            <a href="{{ url_for('ticket.ticket_detail', ticket_id=ticket.id) }}" 
+                            <a href="{{ url_for('admin.view_ticket', ticket_id=ticket.id) }}" 
                                 class="text-blue-600 hover:text-blue-900">View Details</a>
                             {% if ticket.status == 'open' %}
                                 <form method="POST" action="{{ url_for('admin.close_ticket', ticket_id=ticket.id) }}"
@@ -81,7 +89,7 @@
         <nav class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-700">
-                    Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">{{ total_tickets }}</span> results
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">{{ tickets|length }}</span> of <span class="font-medium">{{ total_tickets }}</span> results
                 </p>
             </div>
             <div class="flex-1 flex justify-end">

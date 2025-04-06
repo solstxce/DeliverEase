@@ -22,16 +22,39 @@ class TicketService:
         """Get tickets filtered by status"""
         try:
             query = self.supabase.table('de_tickets')\
-                .select('*, users!inner(*)')\
+                .select('*, de_users!inner(*)')\
                 .order('created_at', desc=True)
             
             if status:
                 query = query.eq('status', status)
             
             response = query.execute()
-            return response.data
+            
+            # Transform raw data into properly structured ticket objects
+            tickets = []
+            for ticket_data in response.data:
+                # Create a ticket object with user property
+                ticket = {
+                    'id': ticket_data['id'],
+                    'subject': ticket_data['subject'],
+                    'status': ticket_data['status'],
+                    'created_at': dateutil.parser.parse(ticket_data['created_at']) if ticket_data.get('created_at') else None,
+                    'updated_at': dateutil.parser.parse(ticket_data['updated_at']) if ticket_data.get('updated_at') else None,
+                    'user': {
+                        'id': ticket_data.get('de_users', {}).get('id'),
+                        'full_name': ticket_data.get('de_users', {}).get('full_name'),
+                        'email': ticket_data.get('de_users', {}).get('email')
+                    }
+                }
+                tickets.append(ticket)
+            
+            return tickets
         except Exception as e:
             print(f"Error getting tickets by status: {e}")
+            # Print the exact error details to help with debugging
+            if hasattr(e, 'json'):
+                error_details = e.json()
+                print(f"Detailed error: {error_details}")
             return []
 
     def create_ticket(self, user_id: str, subject: str, message: str) -> Ticket:
@@ -75,17 +98,54 @@ class TicketService:
             print(f"Error getting user tickets: {e}")
             return []
 
-    def get_ticket_messages(self, ticket_id: str) -> List[TicketMessage]:
+    def get_ticket_messages(self, ticket_id: str) -> List[dict]:
         """Get messages for a specific ticket"""
         try:
+            # First, get the messages without trying to join
             response = self.supabase.table('de_ticket_messages')\
-                .select('*, users!sender_id(*)')\
+                .select('*')\
                 .eq('ticket_id', ticket_id)\
                 .order('created_at')\
                 .execute()
-            return response.data
+            
+            if not response.data:
+                return []
+            
+            # Process messages and fetch sender information
+            messages = []
+            for msg_data in response.data:
+                # Create basic message structure
+                message = {
+                    'id': msg_data['id'],
+                    'message': msg_data['message'],
+                    'created_at': dateutil.parser.parse(msg_data['created_at']) if msg_data.get('created_at') else None,
+                    'sender': None
+                }
+                
+                # Get sender info separately to avoid join issues
+                if msg_data.get('sender_id'):
+                    user_response = self.supabase.table('de_users')\
+                        .select('*')\
+                        .eq('id', msg_data['sender_id'])\
+                        .execute()
+                        
+                    if user_response.data:
+                        message['sender'] = {
+                            'id': user_response.data[0]['id'],
+                            'full_name': user_response.data[0]['full_name'],
+                            'email': user_response.data[0]['email'],
+                            'user_type': user_response.data[0]['user_type']
+                        }
+                
+                messages.append(message)
+            
+            return messages
         except Exception as e:
             print(f"Error getting ticket messages: {e}")
+            # Print the detailed error for debugging
+            if hasattr(e, 'json'):
+                error_details = e.json()
+                print(f"Detailed error: {error_details}")
             return []
 
     def add_message(self, ticket_id: str, sender_id: str, message: str) -> TicketMessage:
@@ -141,65 +201,60 @@ class TicketService:
             print(f"Error getting open tickets count: {e}")
             return 0
 
-    def get_ticket_by_id(self, ticket_id: str) -> Optional[Ticket]:
-        """Get a ticket by ID with all related information"""
+    def get_ticket_by_id(self, ticket_id: str) -> Optional[dict]:
+        """Get a ticket by its ID with messages"""
         try:
-            response = self.supabase.table('de_tickets')\
-                .select('''
-                    *,
-                    de_users!de_tickets_user_id_fkey (
-                        id, email, full_name, user_type
-                    ),
-                    de_ticket_messages (
-                        *,
-                        sender:de_users (
-                            id, email, full_name, user_type
-                        )
-                    )
-                ''')\
+            # Get the ticket with user information
+            # First try to get the ticket without a join
+            ticket_response = self.supabase.table('de_tickets')\
+                .select('*')\
                 .eq('id', ticket_id)\
                 .execute()
             
-            if not response.data:
+            if not ticket_response.data:
                 return None
             
-            ticket_data = response.data[0]
+            ticket_data = ticket_response.data[0]
             
-            # Create ticket object without message field
-            ticket = Ticket(
-                id=ticket_data['id'],
-                user_id=ticket_data['user_id'],
-                subject=ticket_data['subject'],
-                status=ticket_data['status'],
-                created_at=dateutil.parser.parse(ticket_data['created_at']) if ticket_data.get('created_at') else None
-            )
+            # Get the user information separately
+            user_id = ticket_data.get('user_id')
+            user_info = {'id': user_id, 'full_name': 'Unknown', 'email': 'unknown@example.com'}
             
-            # Add user data if available
-            if 'de_users' in ticket_data and ticket_data['de_users']:
-                ticket.user = ticket_data['de_users']
+            if user_id:
+                user_response = self.supabase.table('de_users')\
+                    .select('*')\
+                    .eq('id', user_id)\
+                    .execute()
+                    
+                if user_response.data:
+                    user_info = {
+                        'id': user_response.data[0]['id'],
+                        'full_name': user_response.data[0]['full_name'],
+                        'email': user_response.data[0]['email'],
+                        'user_type': user_response.data[0]['user_type']
+                    }
             
-            # Add messages if available
-            if 'de_ticket_messages' in ticket_data:
-                ticket.messages = []
-                for message_data in ticket_data['de_ticket_messages']:
-                    message = TicketMessage(
-                        id=message_data['id'],
-                        ticket_id=message_data['ticket_id'],
-                        sender_id=message_data['sender_id'],
-                        message=message_data['message'],
-                        created_at=dateutil.parser.parse(message_data['created_at']) if message_data.get('created_at') else None
-                    )
-                    if 'sender' in message_data and message_data['sender']:
-                        message.sender = message_data['sender']
-                    ticket.messages.append(message)
-                
-                # Sort messages by creation date
-                ticket.messages.sort(key=lambda x: x.created_at if x.created_at else datetime.min)
+            # Create the ticket object
+            ticket = {
+                'id': ticket_data['id'],
+                'subject': ticket_data['subject'],
+                'status': ticket_data['status'],
+                'created_at': dateutil.parser.parse(ticket_data['created_at']) if ticket_data.get('created_at') else None,
+                'updated_at': dateutil.parser.parse(ticket_data['updated_at']) if ticket_data.get('updated_at') else None,
+                'user': user_info,
+                'messages': []
+            }
+            
+            # Get the messages for this ticket
+            messages = self.get_ticket_messages(ticket_id)
+            ticket['messages'] = messages
             
             return ticket
         except Exception as e:
             print(f"Error getting ticket by ID: {e}")
-            print(f"Ticket data: {ticket_data}")  # For debugging
+            if hasattr(e, 'json'):
+                error_details = e.json()
+                print(f"Detailed error: {error_details}")
             return None
 
     def get_driver_tickets(self, driver_id: str) -> List[Ticket]:
@@ -285,4 +340,12 @@ class TicketService:
         
         except Exception as e:
             print(f"Error creating driver ticket: {e}")
-            return None 
+            return None
+
+    def get_all_tickets(self, status: Optional[str] = None) -> List[Ticket]:
+        """Alias for get_tickets_by_status for backward compatibility"""
+        return self.get_tickets_by_status(status)
+
+    def get_ticket(self, ticket_id: str) -> Optional[Ticket]:
+        """Alias for get_ticket_by_id for backward compatibility"""
+        return self.get_ticket_by_id(ticket_id) 

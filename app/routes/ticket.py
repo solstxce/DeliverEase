@@ -9,11 +9,19 @@ ticket_service = TicketService()
 @login_required
 def ticket_detail(ticket_id):
     ticket = ticket_service.get_ticket(ticket_id)
-    if ticket.user_id != current_user.id and current_user.user_type != 'admin':
+    
+    # Check if ticket exists
+    if not ticket:
+        flash('Ticket not found', 'error')
+        return redirect(url_for('user.tickets'))
+    
+    # Check permissions using dictionary access instead of attribute access
+    if ticket['user']['id'] != current_user.id and current_user.user_type != 'admin':
         flash('You do not have permission to view this ticket', 'error')
         return redirect(url_for('user.tickets'))
-    messages = ticket_service.get_ticket_messages(ticket_id)
-    return render_template('tickets/detail.html', ticket=ticket, messages=messages)
+    
+    # No need to get messages separately as they're already included in the ticket
+    return render_template('tickets/detail.html', ticket=ticket)
 
 @bp.route('/<ticket_id>/messages', methods=['POST'])
 @login_required
@@ -33,7 +41,14 @@ def add_message(ticket_id):
 @login_required
 def close_ticket(ticket_id):
     ticket = ticket_service.get_ticket(ticket_id)
-    if ticket.user_id != current_user.id and current_user.user_type != 'admin':
+    
+    # Check if ticket exists
+    if not ticket:
+        flash('Ticket not found', 'error')
+        return redirect(url_for('user.tickets'))
+    
+    # Check permissions using dictionary access
+    if ticket['user']['id'] != current_user.id and current_user.user_type != 'admin':
         flash('You do not have permission to close this ticket', 'error')
         return redirect(url_for('user.tickets'))
     

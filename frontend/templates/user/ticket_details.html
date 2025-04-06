@@ -54,8 +54,10 @@
             <div>
                 <h2 class="text-lg font-semibold mb-4">Message</h2>
                 <p class="text-gray-700 whitespace-pre-wrap">
-                    {% if ticket.messages %}
+                    {% if ticket.messages and ticket.messages|length > 0 %}
                         {{ ticket.messages[0].message }}
+                    {% elif ticket.description %}
+                        {{ ticket.description }}
                     {% else %}
                         No message content available
                     {% endif %}

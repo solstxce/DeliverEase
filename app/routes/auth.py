@@ -31,9 +31,23 @@ def register():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
         full_name = request.form.get('full_name')
         phone_number = request.form.get('phone_number')
-        user_type = request.form.get('user_type', 'user')  # Default to regular user
+        user_type = request.form.get('user_type')
+        
+        # Basic validation
+        if not all([email, password, confirm_password, full_name, user_type]):
+            flash('All fields are required.', 'error')
+            return render_template('auth/register.html')
+            
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return render_template('auth/register.html')
+            
+        if user_type not in ['user', 'driver']:
+            flash('Invalid user type.', 'error')
+            return render_template('auth/register.html')
         
         user, error = auth_service.register_user(
             email=email,

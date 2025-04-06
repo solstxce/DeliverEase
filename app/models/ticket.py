@@ -14,36 +14,22 @@ class TicketMessage:
 @dataclass
 class Ticket:
     id: str
-    user_id: str
     subject: str
     status: str
     created_at: Optional[datetime] = None
+    user_id: Optional[str] = None
+    driver_id: Optional[str] = None
+    order_id: Optional[str] = None
+    description: str = ""
     user: Optional[dict] = None
     messages: List[TicketMessage] = field(default_factory=list)
-    description: str = ""
-    driver_id: str = None
-    order_id: str = None
     updates: List['TicketUpdate'] = field(default_factory=list)
 
-    def __init__(self, id: str, subject: str, description: str, status: str, 
-                 created_at: datetime, user_id: str = None, driver_id: str = None, 
-                 order_id: str = None):
-        self.id = id
-        self.subject = subject
-        self.description = description
-        self.status = status
-        self.created_at = created_at
-        self.user_id = user_id
-        self.driver_id = driver_id
-        self.order_id = order_id
-        self.updates = []  # List of TicketUpdate objects
-
+@dataclass
 class TicketUpdate:
-    def __init__(self, id: str, ticket_id: str, message: str, created_at: datetime,
-                 user_id: str = None, driver_id: str = None):
-        self.id = id
-        self.ticket_id = ticket_id
-        self.message = message
-        self.created_at = created_at
-        self.user_id = user_id
-        self.driver_id = driver_id 
+    id: str
+    ticket_id: str
+    message: str
+    created_at: datetime
+    user_id: Optional[str] = None
+    driver_id: Optional[str] = None

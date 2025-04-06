@@ -148,8 +148,14 @@ def tickets():
         return redirect(url_for('user.dashboard'))
     
     status = request.args.get('status')
-    tickets = ticket_service.get_all_tickets(status=status)
-    return render_template('admin/tickets.html', tickets=tickets)
+    tickets = ticket_service.get_tickets_by_status(status=status)
+    total_tickets = ticket_service.get_total_tickets()
+    
+    # Debug print to see the actual data structure
+    if tickets and len(tickets) > 0:
+        print(f"DEBUG - First ticket structure: {tickets[0]}")
+    
+    return render_template('admin/tickets.html', tickets=tickets, total_tickets=total_tickets)
 
 @bp.route('/tickets/<ticket_id>/close', methods=['POST'])
 @login_required
@@ -254,4 +260,18 @@ def update_profile():
         print(f"Error updating profile: {e}")
         flash('An error occurred while updating profile', 'error')
 
-    return redirect(request.referrer) 
+    return redirect(request.referrer)
+
+@bp.route('/tickets/<ticket_id>')
+@login_required
+def view_ticket(ticket_id):
+    if current_user.user_type != 'admin':
+        flash('Access denied.', 'error')
+        return redirect(url_for('user.dashboard'))
+    
+    ticket = ticket_service.get_ticket_by_id(ticket_id)
+    if not ticket:
+        flash('Ticket not found', 'error')
+        return redirect(url_for('admin.tickets'))
+    
+    return render_template('admin/ticket_details.html', ticket=ticket) 

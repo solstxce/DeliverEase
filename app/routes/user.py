@@ -109,19 +109,24 @@ def view_order(order_id):
         
     return render_template('user/order_details.html', order=order)
 
-@bp.route('/tickets/<ticket_id>')
+@bp.route('/view_ticket/<ticket_id>')
 @login_required
 @user_required
 def view_ticket(ticket_id):
-    ticket = ticket_service.get_ticket_by_id(ticket_id)
-    
-    if not ticket:
-        flash('Ticket not found', 'error')
-        return redirect(url_for('user.tickets'))
-    
-    # Ensure users can only view their own tickets
-    if ticket.user_id != current_user.id:
-        flash('Access denied', 'error')
-        return redirect(url_for('user.tickets'))
+    try:
+        ticket = ticket_service.get_ticket_by_id(ticket_id)
         
-    return render_template('user/ticket_details.html', ticket=ticket) 
+        if not ticket:
+            flash('Ticket not found', 'error')
+            return redirect(url_for('user.tickets'))
+        
+        # Ensure users can only view their own tickets
+        if ticket.user_id != current_user.id:
+            flash('Access denied', 'error')
+            return redirect(url_for('user.tickets'))
+            
+        return render_template('user/ticket_details.html', ticket=ticket)
+    except Exception as e:
+        print(f"Error viewing ticket: {e}")
+        flash('An error occurred while retrieving ticket details', 'error')
+        return redirect(url_for('user.tickets')) 

@@ -29,7 +29,7 @@
                 {% for ticket in tickets %}
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            #{{ ticket.id[:8] }}
+                            #{{ ticket.id[:8] if ticket.id else 'N/A' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
                             {{ ticket.subject }}
