@@ -8,20 +8,92 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- ScrollTrigger plugin for GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Initial states for animations */
+        .gsap-hero-content, .gsap-hero-image, .gsap-stat, .gsap-feature, 
+        .gsap-step, .gsap-testimonial, .gsap-cta {
+            opacity: 0;
+        }
+        
+        .bg-gradient-animated {
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Enhanced hover effects */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        .hover-glow:hover {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Pulse animation for CTA button */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        /* For preferring reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .gsap-hero-content, .gsap-hero-image, .gsap-stat, .gsap-feature, 
+            .gsap-step, .gsap-testimonial, .gsap-cta {
+                opacity: 1;
+            }
+            
+            .hover-lift:hover, .hover-scale:hover, .pulse-animation {
+                transform: none;
+                animation: none;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="bg-white">
     <!-- Navigation -->
-    <header class="bg-white shadow">
+    <header class="bg-white shadow sticky top-0 z-50">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url_for('main.index') }}" class="text-2xl font-bold text-blue-600">ShipEasy</a>
+                        <a href="{{ url_for('main.index') }}" class="text-2xl font-extrabold tracking-tight gsap-logo">
+                            <span class="text-blue-600">Ship</span><span class="text-blue-500">Easy</span>
+                        </a>
                     </div>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center space-x-4 gsap-nav-items">
+                    <a href="#features" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Features</a>
+                    <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">How It Works</a>
+                    <a href="#statistics" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Why Us</a>
                     <a href="{{ url_for('auth.login') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Login</a>
                     <a href="{{ url_for('auth.register') }}" class="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">Sign up</a>
                 </div>
@@ -40,24 +112,24 @@
                     </svg>
 
                     <main class="mt-10 mx-auto px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                        <div class="text-center lg:text-left">
+                        <div class="text-center lg:text-left gsap-hero-content">
                             <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                                 <span class="block">Fast & Reliable</span>
                                 <span class="block text-blue-600">Delivery Service</span>
                             </h1>
                             <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                                Connect with trusted drivers for quick and secure deliveries. Track your packages in real-time and enjoy seamless delivery experiences.
+                                Connect with trusted drivers directly for quick and secure deliveries. Track your packages in real-time and enjoy seamless delivery experiences without the middleman markup.
                             </p>
                             <div class="mt-5 sm:mt-8 flex justify-center lg:justify-start">
                                 <div class="rounded-md shadow">
                                     <a href="{{ url_for('auth.register') }}"
-                                        class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                                        class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 pulse-animation hover-glow">
                                         Get Started
                                     </a>
                                 </div>
                                 <div class="mt-0 ml-3">
                                     <a href="{{ url_for('auth.login') }}"
-                                        class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10">
+                                        class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10 hover-lift">
                                         Login
                                     </a>
                                 </div>
@@ -66,14 +138,59 @@
                     </main>
                 </div>
             </div>
-            <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+            <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 gsap-hero-image">
                 <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
                     src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Delivery Service">
             </div>
         </div>
 
+        <!-- Statistics Section -->
+        <div id="statistics" class="py-12 bg-blue-600 text-white bg-gradient-animated">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:text-center mb-10">
+                    <h2 class="text-base font-semibold tracking-wide uppercase">Why ShipEasy?</h2>
+                    <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl">
+                        Eliminating Middlemen, Empowering Drivers
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl text-blue-100 lg:mx-auto">
+                        Traditional logistics companies take large commissions from drivers. We're changing that.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Stat 1 -->
+                    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg p-6 hover-lift gsap-stat">
+                        <div class="text-4xl font-bold text-white mb-2">35%</div>
+                        <div class="text-xl font-semibold mb-2">Commission</div>
+                        <p class="text-blue-100">Traditional delivery services take up to 35% commission from drivers</p>
+                    </div>
+                    
+                    <!-- Stat 2 -->
+                    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg p-6 hover-lift gsap-stat">
+                        <div class="text-4xl font-bold text-white mb-2">8%</div>
+                        <div class="text-xl font-semibold mb-2">Our Fee</div>
+                        <p class="text-blue-100">ShipEasy charges just 8% - putting more money in drivers' pockets</p>
+                    </div>
+                    
+                    <!-- Stat 3 -->
+                    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg p-6 hover-lift gsap-stat">
+                        <div class="text-4xl font-bold text-white mb-2">27%</div>
+                        <div class="text-xl font-semibold mb-2">More Earnings</div>
+                        <p class="text-blue-100">Drivers earn 27% more with us compared to traditional services</p>
+                    </div>
+                    
+                    <!-- Stat 4 -->
+                    <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg p-6 hover-lift gsap-stat">
+                        <div class="text-4xl font-bold text-white mb-2">15%</div>
+                        <div class="text-xl font-semibold mb-2">Lower Costs</div>
+                        <p class="text-blue-100">Customers pay 15% less without sacrificing quality or reliability</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Features Section -->
-        <div class="py-12 bg-gray-50">
+        <div id="features" class="py-12 bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="lg:text-center">
                     <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
@@ -85,7 +202,7 @@
                 <div class="mt-10">
                     <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
                         <!-- Feature 1 -->
-                        <div class="relative">
+                        <div class="relative hover-lift gsap-feature">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,7 +216,7 @@
                         </div>
 
                         <!-- Feature 2 -->
-                        <div class="relative">
+                        <div class="relative hover-lift gsap-feature">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -113,7 +230,7 @@
                         </div>
 
                         <!-- Feature 3 -->
-                        <div class="relative">
+                        <div class="relative hover-lift gsap-feature">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -130,8 +247,52 @@
             </div>
         </div>
 
+        <!-- Driver Benefits Section -->
+        <div class="py-12 bg-gray-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:text-center mb-10">
+                    <h2 class="text-base text-blue-400 font-semibold tracking-wide uppercase">For Drivers</h2>
+                    <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl">
+                        Earn More, Hassle-Free
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl text-gray-300 lg:mx-auto">
+                        Join thousands of drivers who have increased their income by cutting out the middleman.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                    <!-- Benefit 1 -->
+                    <div class="bg-gray-800 rounded-xl p-6 hover-lift gsap-feature">
+                        <div class="text-blue-400 text-2xl mb-4">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Keep More Earnings</h3>
+                        <p class="text-gray-300">Lower commission rates mean you take home more of what you earn.</p>
+                    </div>
+                    
+                    <!-- Benefit 2 -->
+                    <div class="bg-gray-800 rounded-xl p-6 hover-lift gsap-feature">
+                        <div class="text-blue-400 text-2xl mb-4">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Flexible Schedule</h3>
+                        <p class="text-gray-300">Work when you want. Choose your own hours and delivery routes.</p>
+                    </div>
+                    
+                    <!-- Benefit 3 -->
+                    <div class="bg-gray-800 rounded-xl p-6 hover-lift gsap-feature">
+                        <div class="text-blue-400 text-2xl mb-4">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Optimized Routes</h3>
+                        <p class="text-gray-300">Our algorithm finds the most efficient routes to maximize your earnings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- How it Works Section -->
-        <div class="py-16 bg-white">
+        <div id="how-it-works" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="lg:text-center">
                     <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Process</h2>
@@ -146,7 +307,7 @@
                 <div class="mt-12">
                     <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
                         <!-- Step 1 -->
-                        <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-md hover-lift gsap-step">
                             <div class="inline-flex items-center justify-center p-2 bg-blue-600 rounded-md shadow-lg mb-4">
                                 <span class="text-white font-bold text-xl">1</span>
                             </div>
@@ -157,7 +318,7 @@
                         </div>
 
                         <!-- Step 2 -->
-                        <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-md hover-lift gsap-step">
                             <div class="inline-flex items-center justify-center p-2 bg-blue-600 rounded-md shadow-lg mb-4">
                                 <span class="text-white font-bold text-xl">2</span>
                             </div>
@@ -168,7 +329,7 @@
                         </div>
 
                         <!-- Step 3 -->
-                        <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-md hover-lift gsap-step">
                             <div class="inline-flex items-center justify-center p-2 bg-blue-600 rounded-md shadow-lg mb-4">
                                 <span class="text-white font-bold text-xl">3</span>
                             </div>
@@ -179,7 +340,7 @@
                         </div>
 
                         <!-- Step 4 -->
-                        <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-md hover-lift gsap-step">
                             <div class="inline-flex items-center justify-center p-2 bg-blue-600 rounded-md shadow-lg mb-4">
                                 <span class="text-white font-bold text-xl">4</span>
                             </div>
@@ -199,19 +360,19 @@
                 <div class="lg:text-center">
                     <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Testimonials</h2>
                     <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                        What Our Customers Say
+                        What Our Users Say
                     </p>
                 </div>
 
                 <div class="mt-12 grid gap-8 md:grid-cols-3">
-                    <!-- Testimonial 1 -->
-                    <div class="bg-white p-8 rounded-lg shadow-md">
+                    <!-- Customer Testimonial -->
+                    <div class="bg-white p-8 rounded-lg shadow-md hover-lift gsap-testimonial">
                         <div class="flex items-center mb-4">
                             <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span class="text-blue-600 text-xl font-bold">S</span>
+                                <span class="text-blue-600 text-xl font-bold">D</span>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-medium text-gray-900">Sarah Johnson</h4>
+                                <h4 class="text-lg font-medium text-gray-900">Deva</h4>
                                 <div class="flex text-yellow-400">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -226,36 +387,36 @@
                         </p>
                     </div>
 
-                    <!-- Testimonial 2 -->
-                    <div class="bg-white p-8 rounded-lg shadow-md">
+                    <!-- Driver Testimonial -->
+                    <div class="bg-white p-8 rounded-lg shadow-md hover-lift gsap-testimonial">
                         <div class="flex items-center mb-4">
                             <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span class="text-blue-600 text-xl font-bold">M</span>
+                                <span class="text-blue-600 text-xl font-bold">R</span>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-medium text-gray-900">Michael Chen</h4>
+                                <h4 class="text-lg font-medium text-gray-900">Rohit</h4>
                                 <div class="flex text-yellow-400">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
+                                    <i class="fas fa-star"></i>
                                 </div>
                             </div>
                         </div>
                         <p class="text-gray-600">
-                            "I love how easy the app is to use. I needed an urgent package delivered across town and it was there within an hour!"
+                            "As a truck driver, I've increased my earnings by 30% since joining ShipEasy. The fair commission structure means I finally get paid what I deserve!"
                         </p>
                     </div>
 
-                    <!-- Testimonial 3 -->
-                    <div class="bg-white p-8 rounded-lg shadow-md">
+                    <!-- Customer Testimonial -->
+                    <div class="bg-white p-8 rounded-lg shadow-md hover-lift gsap-testimonial">
                         <div class="flex items-center mb-4">
                             <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span class="text-blue-600 text-xl font-bold">J</span>
                             </div>
                             <div class="ml-4">
-                                <h4 class="text-lg font-medium text-gray-900">Jessica Williams</h4>
+                                <h4 class="text-lg font-medium text-gray-900">Jeevan</h4>
                                 <div class="flex text-yellow-400">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -266,7 +427,7 @@
                             </div>
                         </div>
                         <p class="text-gray-600">
-                            "The drivers are always professional and courteous. I feel safe knowing my packages are in good hands with ShipEasy."
+                            "The drivers are always professional and courteous. I feel safe knowing my packages are in good hands with ShipEasy, and prices are much better than competitors."
                         </p>
                     </div>
                 </div>
@@ -274,22 +435,22 @@
         </div>
 
         <!-- CTA Section -->
-        <div class="bg-blue-600">
+        <div class="bg-blue-600 gsap-cta">
             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
                 <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
                     <span class="block">Ready to get started?</span>
-                    <span class="block text-blue-200">Start your first delivery today.</span>
+                    <span class="block text-blue-200">Join the revolution in delivery services today.</span>
                 </h2>
                 <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
                     <div class="inline-flex rounded-md shadow">
                         <a href="{{ url_for('auth.register') }}"
-                            class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+                            class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 hover-lift">
                             Sign up for free
                         </a>
                     </div>
                     <div class="ml-3 inline-flex rounded-md shadow">
-                        <a href="#"
-                            class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-800 hover:bg-blue-700">
+                        <a href="#how-it-works"
+                            class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-800 hover:bg-blue-700 hover-lift">
                             Learn more
                         </a>
                     </div>
@@ -305,33 +466,33 @@
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Company</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">About</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Careers</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">About</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Careers</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Blog</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Services</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Standard Delivery</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Express Delivery</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Corporate Solutions</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Standard Delivery</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Express Delivery</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Corporate Solutions</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Support</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Help Center</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Contact Us</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">FAQ</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Contact Us</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">FAQ</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Legal</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Terms of Service</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white">Cookie Policy</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Terms of Service</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors duration-200">Cookie Policy</a></li>
                     </ul>
                 </div>
             </div>
@@ -344,5 +505,146 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- GSAP Animation Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Register ScrollTrigger plugin
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Initial hero animations
+            gsap.to('.gsap-hero-content', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+            
+            gsap.to('.gsap-hero-image', {
+                opacity: 1,
+                duration: 1.2,
+                delay: 0.3,
+                ease: "power2.out"
+            });
+            
+            // Navigation animations
+            gsap.from('.gsap-nav-items a', {
+                opacity: 0,
+                y: -20,
+                duration: 0.5,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
+            
+            gsap.from('.gsap-logo', {
+                opacity: 0,
+                x: -20,
+                duration: 0.8,
+                ease: "back.out(1.7)"
+            });
+            
+            // Scroll-triggered animations for statistics
+            gsap.to('.gsap-stat', {
+                scrollTrigger: {
+                    trigger: '.gsap-stat',
+                    start: "top 80%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "back.out(1.5)"
+            });
+            
+            // Scroll-triggered animations for features
+            gsap.to('.gsap-feature', {
+                scrollTrigger: {
+                    trigger: '.gsap-feature',
+                    start: "top 80%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power2.out"
+            });
+            
+            // Scroll-triggered animations for steps
+            gsap.to('.gsap-step', {
+                scrollTrigger: {
+                    trigger: '.gsap-step',
+                    start: "top 80%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power2.out"
+            });
+            
+            // Scroll-triggered animations for testimonials
+            gsap.to('.gsap-testimonial', {
+                scrollTrigger: {
+                    trigger: '.gsap-testimonial',
+                    start: "top 80%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "back.out(1.5)"
+            });
+            
+            // Scroll-triggered animations for CTA
+            gsap.to('.gsap-cta', {
+                scrollTrigger: {
+                    trigger: '.gsap-cta',
+                    start: "top 80%",
+                },
+                opacity: 1,
+                duration: 1,
+                ease: "power2.out"
+            });
+            
+            // Number counter animation for statistics
+            const stats = document.querySelectorAll('.gsap-stat .text-4xl');
+            stats.forEach(stat => {
+                const value = parseInt(stat.textContent);
+                gsap.from(stat, {
+                    textContent: 0,
+                    duration: 2,
+                    ease: "power2.out",
+                    snap: { textContent: 1 },
+                    stagger: 1,
+                    scrollTrigger: {
+                        trigger: stat,
+                        start: "top 80%"
+                    },
+                    onUpdate: function() {
+                        // Convert to number first to avoid NaN issues
+                        const currentValue = parseFloat(this.targets()[0].textContent.replace('%', ''));
+                        stat.textContent = Math.round(currentValue) + '%';
+                    }
+                });
+            });
+            
+            // Smooth scroll for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html> 
